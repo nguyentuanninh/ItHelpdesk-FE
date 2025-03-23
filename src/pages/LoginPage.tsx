@@ -8,6 +8,7 @@ import { useLoginUserMutation } from '../services/authApi';
 import apiResponse from '../types/apiResponse';
 import { setCredentials } from '../store/slice/authSlice';
 import MiniLoader from '../components/MiniLoader';
+import { useTitle } from '../hooks/useTitle';
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -16,6 +17,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [loginUser] = useLoginUserMutation();
+  useTitle('Login');
 
   //check if user is already logged in
   useEffect(() => {
@@ -42,16 +44,16 @@ const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
-    
-    const response: apiResponse = await loginUser(userInput);
 
+    const response: apiResponse = await loginUser(userInput);
     if (response.data) {
       const { token } = response.data.result;
       localStorage.setItem('token', token);
       const { userId, username, role }: authModel = jwtDecode(token);
+      console.log(userId, username, role);
       // Lưu token và thông tin người dùng vào Redux store
       dispatch(setCredentials({ token, user: { userId, username, role } }));
-      navigate('/');
+      navigate('/dashboard');
     } else if (response.error) {
       setError(response.error.data.errorMessages[0]);
     }
@@ -62,7 +64,6 @@ const LoginPage = () => {
     <div className="mx-auto max-w-md space-y-6 py-10">
       <div className="text-center">
         <h1 className="text-3xl font-bold">Login to IT Helpdesk</h1>
-        <p className="mt-2 text-muted-foreground"></p>
       </div>
       <div className="rounded-lg border bg-card p-6 shadow-sm">
         <form className="space-y-4" onSubmit={handleSubmit}>
@@ -80,7 +81,7 @@ const LoginPage = () => {
               value={userInput.username}
               onChange={handleUserInput}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              placeholder="ninh.nguyen@seta-international.com"
+              placeholder="name@example.com"
               required
             />
           </div>
@@ -102,15 +103,16 @@ const LoginPage = () => {
               required
             />
           </div>
-          {error && <p className="text-danger small text-center">{error}</p>}
+          {error && <p className="text-center text-sm text-red-600">{error}</p>}
           <Button className="w-full" disabled={loading}>
             {loading ? <MiniLoader color="white"></MiniLoader> : 'Login'}
           </Button>
         </form>
         <div className="mt-4 text-center text-sm">
+          Don't have an account?{' '}
           <Link
             to="/register"
-            className="text-primary underline-offset-4 hover:underline"
+            className="font-bold text-primary underline-offset-4 hover:underline"
           >
             Register
           </Link>

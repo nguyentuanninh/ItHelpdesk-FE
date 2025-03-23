@@ -1,20 +1,35 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+} from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
 import HomePage from '../pages/HomePage';
 import LoginPage from '../pages/LoginPage';
-import NotFoundPage from '../pages/NotFoundPage';
 import RegisterPage from '../pages/RegisterPage';
+import NotFoundPage from '../pages/NotFoundPage';
 import AccessDenied from '../pages/AccessDenied';
+import ProtectedRoute from '../components/ProtectedRoute';
+import { SD_Role } from '../utils/SD';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <MainLayout />,
-    errorElement: <NotFoundPage />,
     children: [
       {
         index: true,
-        element: <HomePage />,
+        element: <Navigate to="/dashboard" replace />,
+      },
+      {
+        path: 'dashboard',
+        // element: <ProtectedRoute />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+          },
+        ],
       },
       // Add more routes as needed
     ],
